@@ -12,7 +12,7 @@ Each uploaded file generates a **unique share code**, enabling other users to **
 - 📥 **Access Shared Files** – Anyone with the share code can download the corresponding file.
 - 🗂️ **Organized File Management** – Clean and minimal interface to keep file sharing simple.
 - 🌐 **Deployed on Render** – Fully functional and accessible via a public URL.
-- ⚙️ **Future-Ready Design** – Can be easily integrated with cloud storage services like AWS S3 or Google Cloud Storage.
+- ⚙️ **Future-Ready Design** – Can be easily integrated with cloud storage services like AWS S3 or Google Cloud Storage. More features like shareble link and qr code can be implemented.
 
 ---
 
