@@ -11,7 +11,7 @@ app.use(cors());
 const PORT = process.env.PORT || 10000;
 
 // Connect to MongoDB
-mongoose.connect("mongodb+srv://priyanshkr138_db_user:2Lz13vwTfnGeFSUu@cluster0.nn2zrb2.mongodb.net/", {
+mongoose.connect("mongodb+srv://priyanshkr138_db_user:xAGAIIZyknDkDCIu@cluster0.nn2zrb2.mongodb.net/?appName=Cluster0", {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
