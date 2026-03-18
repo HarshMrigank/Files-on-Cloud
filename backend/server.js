@@ -12,16 +12,7 @@ const app = express();
 const PORT = process.env.PORT || 10002;
 
 // CORS
-app.use(cors({
-  origin: [
-    "http://localhost:5500",
-    "http://127.0.0.1:5500",
-    "http://localhost:10000",
-    "http://localhost:10001",
-    "http://localhost:10002"
-  ],
-  credentials: true
-}));
+app.use(cors());
 // Import routes
 const authRoutes = require('./routes/auth');
 const uploadRoutes = require('./routes/upload');
@@ -31,16 +22,11 @@ const downloadRoutes = require('./routes/download');
 const FileRecord = require('./models/File');
 
 // Security middleware
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
-    },
-  },
-}));
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+  })
+);
 
 // Rate limiting
 const limiter = rateLimit({
