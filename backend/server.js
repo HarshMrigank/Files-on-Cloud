@@ -62,6 +62,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/api/auth', authRoutes);
 app.use('/api', uploadRoutes);
 app.use('/', downloadRoutes);
+app.use('/api',downloadRoutes);
 
 // Legacy routes for backward compatibility (remove after frontend update)
 app.get('/api/info/:code', uploadRoutes);
