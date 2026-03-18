@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File On Cloud · Auth</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="auth-buttons" style="left: 2rem;">
+            <button id="backBtn" class="auth-btn">← Back</button>
+        </div>
+        <span><img src="backup-file.png" height="60" width="60" alt="backup"></span>
+        <h1>Files on Cloud</h1>
+    </div>
+
+    <div class="container">
+        <div class="section" style="max-width: 500px; margin: 3rem auto;">
+            <div class="auth-card">
+                <div id="loginBlock">
+                    <h2>Login</h2>
+                    <form id="loginForm">
+                        <input type="email" id="loginEmail" placeholder="Email" required>
+                        <input type="password" id="loginPassword" placeholder="Password" required>
+                        <button type="submit" id="loginSubmit">Login</button>
+                    </form>
+                    <p>Don't have an account? <a href="#" id="showSignup">Sign up</a></p>
+                </div>
+
+                <div id="signupBlock" style="display: none;">
+                    <h2>Sign Up</h2>
+                    <form id="signupForm">
+                        <input type="text" id="signupUsername" placeholder="Username" required>
+                        <input type="email" id="signupEmail" placeholder="Email" required>
+                        <input type="password" id="signupPassword" placeholder="Password (min 6 chars)" required>
+                        <button type="submit" id="signupSubmit">Sign Up</button>
+                    </form>
+                    <p>Already have an account? <a href="#" id="showLogin">Login</a></p>
+                </div>
+
+                <div id="authFeedback" class="auth-message" style="display: none; margin-top: 1rem;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="container">
+            <h3>💻 Contact Developer</h3>
+            <div class="social-links">
+                <a href="https://www.linkedin.com/in/priyanshu-kumar-15799a293/" target="_blank">
+                    <span><img src="linkedin.png" height="30" width="30" alt="linkedin"></span> LinkedIn
+                </a>
+                <a href="https://github.com/priyansh13-c" target="_blank">
+                    <span><img src="github.png" height="30" width="30" alt="github"></span> GitHub
+                </a>
+            </div>
+            <p>&copy; 2025 Files on Cloud. Made with ❤️</p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = "http://localhost:10001";
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const startMode = urlParams.get('mode') || 'login';
+
+        const loginBlock = document.getElementById('loginBlock');
+        const signupBlock = document.getElementById('signupBlock');
+        const showSignup = document.getElementById('showSignup');
+        const showLogin = document.getElementById('showLogin');
+        const backBtn = document.getElementById('backBtn');
+        const authFeedback = document.getElementById('authFeedback');
+
+        const loginForm = document.getElementById('loginForm');
+        const signupForm = document.getElementById('signupForm');
+
+        const setMode = (mode) => {
+            if (mode === 'signup') {
+                loginBlock.style.display = 'none';
+                signupBlock.style.display = 'block';
+            } else {
+                loginBlock.style.display = 'block';
+                signupBlock.style.display = 'none';
+            }
+            authFeedback.style.display = 'none';
+        };
+
+        setMode(startMode);
+
+        showSignup.addEventListener('click', (e) => {
+            e.preventDefault();
+            setMode('signup');
+        });
+
+        showLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            setMode('login');
+        });
+
+        backBtn.addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+
+        function showFeedback(message, type) {
+            authFeedback.textContent = message;
+            authFeedback.className = `auth-message ${type}`;
+            authFeedback.style.display = 'block';
+        }
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const submitBtn = document.getElementById('loginSubmit');
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Logging in...';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    localStorage.setItem('authToken', data.token);
+                    window.location.href = 'index.html';
+                } else {
+                    showFeedback(data.error || 'Login failed', 'error');
+                }
+            } catch (err) {
+                showFeedback('Login failed. Please try again.', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Login';
+            }
+        });
+
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('signupUsername').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const submitBtn = document.getElementById('signupSubmit');
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creating account...';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/auth/signup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    localStorage.setItem('authToken', data.token);
+                    window.location.href = 'index.html';
+                } else {
+                    showFeedback(data.error || 'Signup failed', 'error');
+                }
+            } catch (err) {
+                showFeedback('Signup failed. Please try again.', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Sign Up';
+            }
+        });
+    </script>
+</body>
+</html>

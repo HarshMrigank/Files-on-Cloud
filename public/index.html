@@ -9,6 +9,10 @@
 <body>
     <!-- Header -->
     <div class="header">
+        <div class="auth-buttons">
+            <button id="loginBtn" class="auth-btn">Login</button>
+            <button id="signupBtn" class="auth-btn">Sign Up</button>
+        </div>
         <span><img src="backup-file.png" height="60" width="60" alt="backup"></span>
         <h1>Files on Cloud</h1>
     </div>
@@ -22,25 +26,66 @@
                     <input type="file" id="fileInput" accept="*" required>
                     <div class="file-input" onclick="document.getElementById('fileInput').click()">
                         <span class="upload-icon">📁</span>
-                        <span id="fileText">Click to select file (max 10MB)</span>
+                        <span id="fileText">Click to select file (max 20MB)</span>
                     </div>
                 </div>
-                
-                <input type="number" 
-                       id="uploadCode" 
+
+                <input type="number"
+                       id="uploadCode"
                        placeholder="Enter 5-digit code (optional - we'll generate one if empty)"
-                       min="10000" 
+                       min="10000"
                        max="99999">
-                
+
+                <input type="password"
+                       id="filePassword"
+                       placeholder="Password protect file (optional)">
+
+                <select id="expirationTime">
+                    <option value="24h">Expires in 24 hours</option>
+                    <option value="1h">Expires in 1 hour</option>
+                    <option value="6h">Expires in 6 hours</option>
+                    <option value="7d">Expires in 7 days</option>
+                </select>
+
                 <button type="submit" id="uploadBtn">Upload File</button>
             </form>
-            
+
             <div class="loading" id="uploadLoading" style="display: none;">
                 <div class="spinner"></div>
                 <p>Uploading...</p>
             </div>
-            
+
             <div id="uploadMessage"></div>
+        </div>
+
+        <!-- Result Section -->
+        <div class="section" id="resultSection" style="display: none;">
+            <h2>📦 Upload Result</h2>
+            <div class="result-card">
+                <div class="result-header">
+                    <span class="result-icon">📦</span>
+                    <h3>File Uploaded Successfully</h3>
+                </div>
+                
+                <div class="result-content">
+                    <div class="share-link-section">
+                        <span class="result-icon">🔗</span>
+                        <span class="section-title">Share Link</span>
+                        <div class="link-container">
+                            <input type="text" id="shareLinkInput" readonly>
+                            <button id="copyLinkBtn" class="copy-btn">Copy</button>
+                        </div>
+                    </div>
+                    
+                    <div class="qr-section">
+                        <span class="result-icon qr-toggle" id="qrToggle">📱</span>
+                        <span class="section-title qr-toggle" id="qrToggleText">QR Code (click to show)</span>
+                        <div id="qrContainer" style="display: none;">
+                            <img id="qrCode" src="" alt="QR Code" />
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Download Section -->
@@ -73,13 +118,17 @@
         <div class="instructions">
             <h3>📋 How to Use Files on Cloud</h3>
             <ul>
-                <li><strong>Upload Files:</strong> Click on the upload area to select your file (maximum 10MB). You can optionally provide a custom 5-digit code, or let me generate one for you.</li>
+                <li><strong>🔐 Authentication:</strong> Create an account or login to upload files. Your files are securely associated with your account.</li>
+                <li><strong>Upload Files:</strong> Click on the upload area to select your file (maximum 20MB). You can optionally provide a custom 5-digit code, set a password, and choose expiration time.</li>
+                <li><strong>Password Protection:</strong> Optionally protect your files with a password. Recipients will need the password to download.</li>
+                <li><strong>Expiration:</strong> Files automatically expire and are deleted after the chosen time period (1 hour to 7 days).</li>
+                <li><strong>QR Codes:</strong> After upload, get a QR code that others can scan to access the download link instantly.</li>
                 <li><strong>Share Code:</strong> After uploading, share the 5-digit code with others to allow them to download your file.</li>
                 <li><strong>Download Files:</strong> Enter the 5-digit code you received and click "Download File" to get the file instantly.</li>
                 <li><strong>Get File Info:</strong> Use "Get File Info" button to check file details like name, size, and download count before downloading.</li>
-                <li><strong>Security:</strong> Files are temporarily stored and automatically deleted after a certain period for your privacy and security.</li>
+                <li><strong>Analytics:</strong> View download statistics for your uploaded files through your account.</li>
+                <li><strong>Security:</strong> Files are temporarily stored and automatically deleted after expiration for your privacy and security.</li>
                 <li><strong>File Types:</strong> All file types are supported - documents, images, videos, archives, and more!</li>
-                <li><strong>More features are on the way, stay connected!!</strong> 
             </ul>
         </div>
     </div>
@@ -101,14 +150,27 @@
     </div>
 
     <script>
-        const API_BASE = ""; 
+        const API_BASE = "http://localhost:10002";
 
+        // Auth state
+        let currentUser = null;
+        let authToken = localStorage.getItem('authToken');
+
+        // DOM elements
         const uploadForm = document.getElementById('uploadForm');
         const fileInput = document.getElementById('fileInput');
         const uploadCodeInput = document.getElementById('uploadCode');
+        const filePasswordInput = document.getElementById('filePassword');
+        const expirationSelect = document.getElementById('expirationTime');
         const uploadBtn = document.getElementById('uploadBtn');
         const uploadLoading = document.getElementById('uploadLoading');
         const uploadMessage = document.getElementById('uploadMessage');
+        const resultSection = document.getElementById('resultSection');
+        const shareLinkInput = document.getElementById('shareLinkInput');
+        const copyLinkBtn = document.getElementById('copyLinkBtn');
+        const qrCode = document.getElementById('qrCode');
+        const qrToggle = document.getElementById('qrToggle');
+        const qrToggleText = document.getElementById('qrToggleText');
         const fileText = document.getElementById('fileText');
 
         const downloadForm = document.getElementById('downloadForm');
@@ -119,20 +181,81 @@
         const downloadMessage = document.getElementById('downloadMessage');
         const fileInfo = document.getElementById('fileInfo');
 
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            if (authToken) {
+                checkAuthStatus();
+            }
+            updateUI();
+        });
+
+        // Auth functions
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    currentUser = data.user;
+                    updateUI();
+                } else {
+                    localStorage.removeItem('authToken');
+                    authToken = null;
+                }
+            } catch (error) {
+                console.error('Auth check error:', error);
+                localStorage.removeItem('authToken');
+                authToken = null;
+            }
+        }
+
+        function updateUI() {
+            if (currentUser) {
+                loginBtn.textContent = `Hi, ${currentUser.username}`;
+                loginBtn.onclick = logout;
+                signupBtn.style.display = 'none';
+            } else {
+                loginBtn.textContent = 'Login';
+                loginBtn.onclick = () => window.location.href = 'auth.html?mode=login';
+                signupBtn.style.display = 'inline-block';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('authToken');
+            authToken = null;
+            currentUser = null;
+            updateUI();
+            showMessage(uploadMessage, 'Logged out successfully', 'success');
+        }
+
+        // Navigation helpers
+        function goToAuthPage(mode) {
+            window.location.href = `auth.html?mode=${mode}`;
+        }
+
+        // Event listeners
+        loginBtn.addEventListener('click', () => goToAuthPage('login'));
+        signupBtn.addEventListener('click', () => goToAuthPage('signup'));
+
         // File input handling
         fileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             
             if (file) {
-                if (file.size > 10 * 1024 * 1024) { // 10MB
-                    fileText.innerHTML = `<span style="color: #e74c3c;">❌ File too large (max 10MB)</span>`;
+                if (file.size > 20 * 1024 * 1024) { // 20MB
+                    fileText.innerHTML = `<span style="color: #e74c3c;">❌ File too large (max 20MB)</span>`;
                     e.target.value = ''; // Clear the selection
                     return;
                 }
                 const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
                 fileText.innerHTML = `<span style="color: #2ecc71;">✅ ${file.name} (${sizeInMB} MB)</span>`;
             } else {
-                fileText.innerHTML = 'Click to select file (max 10MB)';
+                fileText.innerHTML = 'Click to select file (max 20MB)';
             }
         });
 
@@ -147,7 +270,8 @@
 
             uploadBtn.disabled = true;
             uploadLoading.style.display = 'block';
-            uploadMessage.innerHTML = ''; // Clear previous messages
+            uploadMessage.innerHTML = '';
+            resultSection.style.display = 'none';
 
             try {
                 const formData = new FormData();
@@ -155,22 +279,41 @@
                 if (uploadCodeInput.value) {
                     formData.append('code', uploadCodeInput.value);
                 }
+                if (filePasswordInput.value) {
+                    formData.append('password', filePasswordInput.value);
+                }
+                formData.append('expiration', expirationSelect.value);
+
+               // ✅ Fixed — include token if present
+                const headers = {};
+                if (authToken) {
+                    headers['Authorization'] = `Bearer ${authToken}`;
+                }
 
                 const response = await fetch(`${API_BASE}/api/upload`, {
                     method: 'POST',
+                    headers,
                     body: formData
                 });
 
                 const result = await response.json();
 
                 if (response.ok) {
-                    // Show success message first, THEN reset form after a delay
+                    // Show success message and result
                     showMessage(uploadMessage, `✅ ${result.message}`, 'success');
                     
-                    // Reset form after showing the success message
+                    // Show result section
+                    shareLinkInput.value = result.downloadUrl;
+                    qrCode.src = result.qrCode;
+                    resultSection.style.display = 'block';
+                    
+                    // Scroll to result section
+                    resultSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                    // Reset form after a delay
                     setTimeout(() => {
                         uploadForm.reset();
-                        fileText.innerHTML = 'Click to select file (max 10MB)';
+                        fileText.innerHTML = 'Click to select file (max 20MB)';
                     }, 100);
                 } else {
                     showMessage(uploadMessage, `❌ ${result.error || 'An unknown error occurred.'}`, 'error');
@@ -181,6 +324,43 @@
             } finally {
                 uploadBtn.disabled = false;
                 uploadLoading.style.display = 'none';
+            }
+        });
+
+        // Copy link functionality
+        copyLinkBtn.addEventListener('click', function() {
+            const link = shareLinkInput.value;
+            navigator.clipboard.writeText(link).then(() => {
+                copyLinkBtn.textContent = '✅ Copied!';
+                setTimeout(() => {
+                    copyLinkBtn.textContent = 'Copy';
+                }, 2000);
+            }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = link;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                copyLinkBtn.textContent = '✅ Copied!';
+                setTimeout(() => {
+                    copyLinkBtn.textContent = 'Copy';
+                }, 2000);
+            });
+        });
+
+        // QR Code toggle functionality
+        qrToggle.addEventListener('click', function() {
+            const qrContainer = document.getElementById('qrContainer');
+            const qrToggleText = document.getElementById('qrToggleText');
+            
+            if (qrContainer.style.display === 'none') {
+                qrContainer.style.display = 'block';
+                qrToggleText.textContent = 'QR Code (click to hide)';
+            } else {
+                qrContainer.style.display = 'none';
+                qrToggleText.textContent = 'QR Code (click to show)';
             }
         });
         
@@ -209,6 +389,8 @@
                             <p><strong>Size:</strong> ${result.sizeFormatted}</p>
                             <p><strong>Uploaded:</strong> ${new Date(result.uploadDate).toLocaleString()}</p>
                             <p><strong>Downloads:</strong> ${result.downloadCount}</p>
+                            <p><strong>Expires:</strong> ${new Date(result.expiresAt).toLocaleString()}</p>
+                            ${result.hasPassword ? '<p><strong>🔒 Password Protected</strong></p>' : ''}
                         </div>
                     `;
                 } else {
