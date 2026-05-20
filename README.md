@@ -3,6 +3,7 @@
 [![Version](https://img.shields.io/badge/version-2.0.1-blue.svg)]()
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
 [![Build](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
+![Nexus Spring of Code](https://img.shields.io/badge/Nexus%20Spring%20of%20Code-2026-8A2BE2?style=for-the-badge&logo=github)
 
 > A cloud file storage and sharing web application — upload, manage, and share files from any device.
 
