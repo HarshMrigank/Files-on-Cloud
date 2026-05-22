@@ -976,4 +976,81 @@ button:disabled {
     border: 1px solid rgba(255, 255, 255, 0.1);
     font-size: 0.9rem;
 }
+}
+/* Storage Visualizer Component (Custom) */
+.storage-container {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+.storage-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    color: #e2e8f0;
+    font-size: 1rem;
+}
+.progress-track {
+    width: 100%;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    overflow: hidden;
+}
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+    transition: width 0.8s ease-in-out, background 0.3s;
+}
+.progress-fill.warning { background: linear-gradient(90deg, #f6ad55 0%, #dd6b20 100%); }
+.progress-fill.danger { background: linear-gradient(90deg, #fc8181 0%, #e53e3e 100%); }
+.storage-text {
+    font-size: 0.85rem;
+    color: #a0aec0;
+    margin-top: 8px;
+    text-align: right;
+    font-weight: 500;
+}
+
+/*Search and Sort Controls UI */
+.controls-container {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+.search-input {
+    flex: 1;
+    min-width: 200px;
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    font-size: 0.95rem;
+    transition: border-color 0.3s;
+}
+.search-input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+.sort-select {
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #1a202c; 
+    color: white;
+    font-size: 0.95rem;
+    cursor: pointer; 
+    transition: border-color 0.3s;
+}
+.sort-select:focus {
+    outline: none;
+    border-color: #667eea;
+}
 
