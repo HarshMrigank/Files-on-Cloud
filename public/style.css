@@ -774,7 +774,7 @@ button:disabled {
 }
 
 .social-links a {
-    color: #e0e0e0;
+    color: var(--text-primary);
     text-decoration: none;
     padding: 0.8rem 1.5rem;
     border: 2px solid rgba(102, 126, 234, 0.3);
@@ -783,6 +783,18 @@ button:disabled {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    background: rgba(255,255,255,0.04);
+}
+
+body.light-theme .social-links a {
+    background: white;
+    color: #4338ca;
+    border: 1px solid rgba(99, 102, 241, 0.25);
+}
+
+body.light-theme .social-links a:hover {
+    background: #6366f1;
+    color: white;
 }
 
 .social-links a:hover {
@@ -1046,7 +1058,7 @@ body.light-theme .auth-card p {
 .auth-card p {
     margin-top: 1.2rem;
     text-align: center;
-    color: #e5e7eb;
+    color: var(--text-primary);
     font-size: 1rem;
     font-weight: 500;
 }
@@ -1209,16 +1221,26 @@ body.light-theme .auth-card p {
     border: 1px solid rgba(102, 126, 234, 0.2);
 }
 
+body.light-theme .dashboard-table-container {
+    background: white;
+}
+
 .dashboard-table {
     width: 100%;
     border-collapse: collapse;
     min-width: 600px;
 }
 
-.dashboard-table th, .dashboard-table td {
+.dashboard-table th,
+.dashboard-table td {
     padding: 1rem;
     text-align: left;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+body.light-theme .dashboard-table tbody tr:hover {
+    background: rgba(99, 102, 241, 0.06);
 }
 
 .dashboard-table th {
@@ -1287,7 +1309,7 @@ body.light-theme .auth-card p {
     border: 1px solid rgba(255, 255, 255, 0.1);
     font-size: 0.9rem;
 }
-}
+
 /* =========================================
    Storage Visualizer Component (Custom)
    ========================================= */
@@ -1304,8 +1326,9 @@ body.light-theme .auth-card p {
     display: flex;
     justify-content: space-between;
     margin-bottom: 12px;
-    color: #e2e8f0;
+    color: var(--text-primary);
     font-size: 1rem;
+    font-weight: 600;
 }
 .progress-track {
     width: 100%;
@@ -1325,10 +1348,26 @@ body.light-theme .auth-card p {
 .progress-fill.danger { background: linear-gradient(90deg, #fc8181 0%, #e53e3e 100%); }
 .storage-text {
     font-size: 0.85rem;
-    color: #a0aec0;
+    color: #4b5563;
     margin-top: 8px;
     text-align: right;
-    font-weight: 500;
+    font-weight: 600;
+}
+body.light-theme .storage-container {
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid rgba(99, 102, 241, 0.15);
+}
+
+body.light-theme .storage-header {
+    color: #374151;
+}
+
+body.light-theme .storage-text {
+    color: #4b5563;
+}
+
+body.light-theme .progress-track {
+    background: rgba(99, 102, 241, 0.12);
 }
 
 /*Search and Sort Controls UI */
@@ -1338,6 +1377,7 @@ body.light-theme .auth-card p {
     margin-bottom: 20px;
     flex-wrap: wrap;
 }
+
 .search-input {
     flex: 1;
     min-width: 200px;
@@ -1345,14 +1385,26 @@ body.light-theme .auth-card p {
     border-radius: 8px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     background: rgba(255, 255, 255, 0.05);
-    color: white;
+    color: var(--text-primary);
     font-size: 0.95rem;
     transition: border-color 0.3s;
 }
+
+body.light-theme .search-input {
+    background: white;
+    color: #111827;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+body.light-theme .search-input::placeholder {
+    color: #6b7280;
+}
+
 .search-input:focus {
     outline: none;
     border-color: #667eea;
 }
+
 .sort-select {
     padding: 10px 15px;
     border-radius: 8px;
@@ -1372,6 +1424,8 @@ body.light-theme .footer {
     border-top: 1px solid rgba(67, 56, 202, 0.15);
 }
 body.light-theme .section {
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid rgba(99, 102, 241, 0.12);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
 }
 body.light-theme summary,
