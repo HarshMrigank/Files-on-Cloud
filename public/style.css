@@ -1228,25 +1228,57 @@ body.light-theme .dashboard-table-container {
 .dashboard-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 600px;
+    min-width: 900px; /* Prevents squishing on desktop/laptop screens and handles narrow viewports via container horizontal scroll */
 }
 
 .dashboard-table th,
 .dashboard-table td {
-    padding: 1rem;
+    padding: 1rem 1.2rem;
     text-align: left;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid var(--border-color);
     color: var(--text-primary);
-}
-
-body.light-theme .dashboard-table tbody tr:hover {
-    background: rgba(99, 102, 241, 0.06);
 }
 
 .dashboard-table th {
     background: rgba(102, 126, 234, 0.1);
-    color: #667eea;
+    color: var(--text-secondary);
     font-weight: 600;
+}
+
+/* Prevent squishing and wrapping of core metadata columns */
+.dashboard-table th:nth-child(2), /* Code */
+.dashboard-table td:nth-child(2),
+.dashboard-table th:nth-child(3), /* Size */
+.dashboard-table td:nth-child(3),
+.dashboard-table th:nth-child(4), /* Upload Date */
+.dashboard-table td:nth-child(4),
+.dashboard-table th:nth-child(5), /* Expires */
+.dashboard-table td:nth-child(5),
+.dashboard-table th:nth-child(6), /* Downloads */
+.dashboard-table td:nth-child(6) {
+    white-space: nowrap;
+}
+
+/* Clean, responsive truncation for long file names */
+.dashboard-table th:first-child,
+.dashboard-table td:first-child {
+    min-width: 180px;
+    max-width: 280px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Dedicated space for the action buttons to align perfectly */
+.dashboard-table th:last-child,
+.dashboard-table td:last-child {
+    width: 260px;
+    min-width: 260px;
+    white-space: nowrap;
+}
+
+body.light-theme .dashboard-table tbody tr:hover {
+    background: rgba(99, 102, 241, 0.06);
 }
 
 .dashboard-table tbody tr:last-child td {
