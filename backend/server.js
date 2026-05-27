@@ -6,6 +6,8 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const cron = require('node-cron');
+// Load environment variables from root first, then fall back to backend/
+require("dotenv").config({ path: path.join(__dirname, '..', '.env') });
 require("dotenv").config({ path: path.join(__dirname, '.env') });
 
 // Fail fast if required environment variables are missing
