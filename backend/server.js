@@ -26,9 +26,8 @@ const PORT = process.env.PORT || 10002;
 
 // --- SECURE CORS SETUP ---
 const allowedOrigins = [
-  'http://localhost:5500', 
-  'http://127.0.0.1:5500', 
-  'https://your-frontend-vercel-url.vercel.app' // TODO: Replace this with your actual deployed backend URL
+  "http://localhost:5173",
+  "https://files-on-cloud.onrender.com"
 ];
 
 app.use(cors({
